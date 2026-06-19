@@ -1,0 +1,694 @@
+
+{
+  "quiz": [
+    {
+      "question": "Which parts of your face do you use to look at the bright colours in a picture book?",
+      "answerOptions": [
+        {
+          "text": "Ears",
+          "isCorrect": false,
+          "rationale": "These are used for collecting sounds rather than processing visual information."
+        },
+        {
+          "text": "Eyes",
+          "isCorrect": true,
+          "rationale": "These organs are specifically designed to detect light and allow us to see the world around us."
+        },
+        {
+          "text": "Mouth",
+          "isCorrect": false,
+          "rationale": "This part is primarily used for eating and speaking, not for vision."
+        },
+        {
+          "text": "Nose",
+          "isCorrect": false,
+          "rationale": "The function of this part is to breathe and detect different scents."
+        }
+      ],
+      "hint": "Think about which part of your head helps you see things."
+    },
+    {
+      "question": "If a bell rings at school, which part of your head helps you to hear the sound?",
+      "answerOptions": [
+        {
+          "text": "Eyes",
+          "isCorrect": false,
+          "rationale": "Visual organs help us see the bell but do not process the sound it makes."
+        },
+        {
+          "text": "Ears",
+          "isCorrect": true,
+          "rationale": "We have two of these on the sides of our head specifically for listening to sounds."
+        },
+        {
+          "text": "Teeth",
+          "isCorrect": false,
+          "rationale": "These are hard structures used for chewing food, not for hearing."
+        },
+        {
+          "text": "Fingers",
+          "isCorrect": false,
+          "rationale": "These are found on the hands and are used for touching or gripping objects."
+        }
+      ],
+      "hint": "You have one of these on each side of your head to listen to music or voices."
+    },
+    {
+      "question": "Which part of your face would you use to find out if a flower has a lovely scent?",
+      "answerOptions": [
+        {
+          "text": "Mouth",
+          "isCorrect": false,
+          "rationale": "While the mouth is on the face, it is used for tasting and talking rather than smelling."
+        },
+        {
+          "text": "Knee",
+          "isCorrect": false,
+          "rationale": "This is a joint in the leg used for bending, not a facial feature."
+        },
+        {
+          "text": "Nose",
+          "isCorrect": true,
+          "rationale": "This part of the face contains the sensory receptors needed to detect smells."
+        },
+        {
+          "text": "Hand",
+          "isCorrect": false,
+          "rationale": "Hands are used for touching and holding, but they cannot detect scents."
+        }
+      ],
+      "hint": "This part is located in the middle of your face."
+    },
+    {
+      "question": "Which part of your head is used for both speaking to your friends and eating your lunch?",
+      "answerOptions": [
+        {
+          "text": "Head",
+          "isCorrect": false,
+          "rationale": "The head is the whole top section of the body, but a specific part within it performs these actions."
+        },
+        {
+          "text": "Mouth",
+          "isCorrect": true,
+          "rationale": "This opening allows us to take in food and use our tongue and lips to form words."
+        },
+        {
+          "text": "Foot",
+          "isCorrect": false,
+          "rationale": "The foot is at the bottom of the body and is used for walking."
+        },
+        {
+          "text": "Hand",
+          "isCorrect": false,
+          "rationale": "Hands may hold the food, but they are not the part used to chew or speak."
+        }
+      ],
+      "hint": "It is the part of your face that moves when you talk or chew."
+    },
+    {
+      "question": "What is the name of the long part of your upper body that connects your shoulder to your hand?",
+      "answerOptions": [
+        {
+          "text": "Leg",
+          "isCorrect": false,
+          "rationale": "The leg is part of the lower body and connects the hip to the foot."
+        },
+        {
+          "text": "Foot",
+          "isCorrect": false,
+          "rationale": "The foot is the very end of the leg, not the connector between the shoulder and hand."
+        },
+        {
+          "text": "Arm",
+          "isCorrect": true,
+          "rationale": "This limb serves as the main link between the torso and the hand."
+        },
+        {
+          "text": "Head",
+          "isCorrect": false,
+          "rationale": "The head is at the top of the body and does not connect the shoulder to the hand."
+        }
+      ],
+      "hint": "This part includes your biceps and your elbow."
+    },
+    {
+      "question": "Which long body parts allow you to run quickly around the playground?",
+      "answerOptions": [
+        {
+          "text": "Arms",
+          "isCorrect": false,
+          "rationale": "Arms may swing while running, but they do not provide the power to move across the ground."
+        },
+        {
+          "text": "Ears",
+          "isCorrect": false,
+          "rationale": "Ears are for hearing and do not play a role in physical movement across a distance."
+        },
+        {
+          "text": "Legs",
+          "isCorrect": true,
+          "rationale": "These lower limbs are the primary parts used for walking, running, and jumping."
+        },
+        {
+          "text": "Hands",
+          "isCorrect": false,
+          "rationale": "Hands are used for holding things, not for supporting the body while running."
+        }
+      ],
+      "hint": "These start at your hips and end at your feet."
+    },
+    {
+      "question": "What are the small, thin parts on your hand that help you pick up a tiny marble?",
+      "answerOptions": [
+        {
+          "text": "Toes",
+          "isCorrect": false,
+          "rationale": "Toes are found on the feet and are not usually used for fine gripping tasks."
+        },
+        {
+          "text": "Fingers",
+          "isCorrect": true,
+          "rationale": "We have five of these on each hand to help us grip, touch, and feel small objects."
+        },
+        {
+          "text": "Arms",
+          "isCorrect": false,
+          "rationale": "The arm is the large limb, while the smaller parts at the end do the actual gripping."
+        },
+        {
+          "text": "Legs",
+          "isCorrect": false,
+          "rationale": "Legs are used for movement and are much too large for picking up marbles."
+        }
+      ],
+      "hint": "You have ten of these in total on your two hands."
+    },
+    {
+      "question": "Which parts of your body do you place inside your socks and shoes?",
+      "answerOptions": [
+        {
+          "text": "Hands",
+          "isCorrect": false,
+          "rationale": "Hands are usually kept in gloves or mittens rather than socks and shoes."
+        },
+        {
+          "text": "Arms",
+          "isCorrect": false,
+          "rationale": "Arms are covered by sleeves, not by footwear."
+        },
+        {
+          "text": "Feet",
+          "isCorrect": true,
+          "rationale": "These parts are at the bottom of our legs and need protection from the ground."
+        },
+        {
+          "text": "Heads",
+          "isCorrect": false,
+          "rationale": "The head is covered by a hat, not by shoes."
+        }
+      ],
+      "hint": "These are at the very bottom of your legs."
+    },
+    {
+      "question": "When you want to drink a glass of water, which part of your arm do you bend to move the glass to your mouth?",
+      "answerOptions": [
+        {
+          "text": "Elbow",
+          "isCorrect": true,
+          "rationale": "This joint in the middle of the arm allows it to fold so the hand can reach the face."
+        },
+        {
+          "text": "Knee",
+          "isCorrect": false,
+          "rationale": "The knee is in the leg and does not help move the arm toward the mouth."
+        },
+        {
+          "text": "Foot",
+          "isCorrect": false,
+          "rationale": "The foot is too far away from the glass and the mouth to assist in drinking."
+        },
+        {
+          "text": "Finger",
+          "isCorrect": false,
+          "rationale": "Fingers hold the glass, but the arm itself bends at a different point to lift it."
+        }
+      ],
+      "hint": "It is the hinge-like joint in the middle of your arm."
+    },
+    {
+      "question": "Which part of your leg must bend so that you can sit down on a small chair?",
+      "answerOptions": [
+        {
+          "text": "Elbow",
+          "isCorrect": false,
+          "rationale": "The elbow is part of the arm and is not used to sit down."
+        },
+        {
+          "text": "Knee",
+          "isCorrect": true,
+          "rationale": "This joint allows the leg to fold, which is necessary for sitting or kneeling."
+        },
+        {
+          "text": "Hand",
+          "isCorrect": false,
+          "rationale": "The hand is used for holding, not for bending the leg."
+        },
+        {
+          "text": "Nose",
+          "isCorrect": false,
+          "rationale": "The nose is a facial feature and has no role in the movement of the legs."
+        }
+      ],
+      "hint": "It is the hard, round part in the middle of your leg."
+    },
+    {
+      "question": "What is the specific name for the hard bone in your head that keeps your brain safe?",
+      "answerOptions": [
+        {
+          "text": "Hand skeleton",
+          "isCorrect": false,
+          "rationale": "This refers to the bones in your hand, which do not protect the brain."
+        },
+        {
+          "text": "Skull",
+          "isCorrect": true,
+          "rationale": "The skull is the part of the head skeleton designed to encase and protect the brain."
+        },
+        {
+          "text": "Foot skeleton",
+          "isCorrect": false,
+          "rationale": "The foot bones are located at the bottom of the body and serve a different purpose."
+        },
+        {
+          "text": "Arm skeleton",
+          "isCorrect": false,
+          "rationale": "The arm bones are for movement and reaching, not for protecting the head."
+        }
+      ],
+      "hint": "It is also known as the head skeleton."
+    },
+    {
+      "question": "What do we call the whole collection of hard, white bones that are inside our body?",
+      "answerOptions": [
+        {
+          "text": "School",
+          "isCorrect": false,
+          "rationale": "A school is a place where we learn, not a part of our internal body structure."
+        },
+        {
+          "text": "Skeleton",
+          "isCorrect": true,
+          "rationale": "The skeleton is the framework of bones that supports our body and protects our organs."
+        },
+        {
+          "text": "Jacket",
+          "isCorrect": false,
+          "rationale": "A jacket is a piece of clothing worn on the outside of the body."
+        },
+        {
+          "text": "Classroom",
+          "isCorrect": false,
+          "rationale": "A classroom is a room within a building, not an internal body part."
+        }
+      ],
+      "hint": "This internal frame helps you stand up straight."
+    },
+    {
+      "question": "What can you feel if you press on the hard parts inside your fingers or your shins?",
+      "answerOptions": [
+        {
+          "text": "Water",
+          "isCorrect": false,
+          "rationale": "While our bodies contain water, it is liquid and not the hard structure we feel under the skin."
+        },
+        {
+          "text": "Food",
+          "isCorrect": false,
+          "rationale": "Food is processed in the stomach and is not part of the structure of the fingers or shins."
+        },
+        {
+          "text": "Bones",
+          "isCorrect": true,
+          "rationale": "Bones are the hard pieces of the skeleton that provide structure and can be felt through the skin."
+        },
+        {
+          "text": "Hair",
+          "isCorrect": false,
+          "rationale": "Hair grows on the surface of the skin and is soft, not hard and internal."
+        }
+      ],
+      "hint": "These make up the skeleton inside your body."
+    },
+    {
+      "question": "Why is it important to have bones inside our arms and legs?",
+      "answerOptions": [
+        {
+          "text": "To help us stand and move",
+          "isCorrect": true,
+          "rationale": "Bones provide the rigid structure needed for muscles to pull against so we can move and stay upright."
+        },
+        {
+          "text": "To help us sleep",
+          "isCorrect": false,
+          "rationale": "Sleep is a biological process that does not directly depend on the presence of bones in the limbs."
+        },
+        {
+          "text": "To change our eye colour",
+          "isCorrect": false,
+          "rationale": "Eye colour is determined by genetics and the iris, not by the bones in our arms or legs."
+        },
+        {
+          "text": "To help us eat",
+          "isCorrect": false,
+          "rationale": "While the jawbone helps with chewing, the bones in our limbs are for posture and locomotion."
+        }
+      ],
+      "hint": "Think about how you would stay upright if your body was just soft skin and muscle."
+    },
+    {
+      "question": "What are the small parts at the very end of your feet called?",
+      "answerOptions": [
+        {
+          "text": "Fingers",
+          "isCorrect": false,
+          "rationale": "Fingers are the equivalent parts found on the hands, not the feet."
+        },
+        {
+          "text": "Toes",
+          "isCorrect": true,
+          "rationale": "These are the ten small digits found at the front of the feet."
+        },
+        {
+          "text": "Knees",
+          "isCorrect": false,
+          "rationale": "Knees are the joints in the middle of the leg, far from the end of the foot."
+        },
+        {
+          "text": "Eyes",
+          "isCorrect": false,
+          "rationale": "Eyes are facial features used for seeing and are not located on the feet."
+        }
+      ],
+      "hint": "You have five of these on each foot."
+    },
+    {
+      "question": "Which part of your skeleton is found at the very bottom and helps you balance when you stand up?",
+      "answerOptions": [
+        {
+          "text": "Head skeleton",
+          "isCorrect": false,
+          "rationale": "The head skeleton is at the top and protects the brain, but it doesn't touch the ground for balance."
+        },
+        {
+          "text": "Hand skeleton",
+          "isCorrect": false,
+          "rationale": "The hands are for grasping and are not typically used to balance the body while standing."
+        },
+        {
+          "text": "Foot skeleton",
+          "isCorrect": true,
+          "rationale": "The bones in the feet provide a wide base that supports the weight of the entire body."
+        },
+        {
+          "text": "Arm skeleton",
+          "isCorrect": false,
+          "rationale": "Arm bones are designed for reaching and lifting rather than supporting standing weight."
+        }
+      ],
+      "hint": "It is the set of bones inside the part of your body that touches the floor."
+    },
+    {
+      "question": "When you nod your face up and down to say 'yes' without using words, which part are you moving?",
+      "answerOptions": [
+        {
+          "text": "Foot",
+          "isCorrect": false,
+          "rationale": "Moving the foot is not a standard gesture for agreeing with someone."
+        },
+        {
+          "text": "Head",
+          "isCorrect": true,
+          "rationale": "Nodding involves moving the entire top section of the body where the face is located."
+        },
+        {
+          "text": "Hand",
+          "isCorrect": false,
+          "rationale": "Moving the hand might be a wave, but it is not a 'nod'."
+        },
+        {
+          "text": "Toe",
+          "isCorrect": false,
+          "rationale": "Toes are too small and too far down to be seen clearly during a conversation."
+        }
+      ],
+      "hint": "This part is at the very top of your body."
+    },
+    {
+      "question": "Which two body parts do you bring together to make a loud sound when you are clapping for a friend?",
+      "answerOptions": [
+        {
+          "text": "Feet",
+          "isCorrect": false,
+          "rationale": "Stamping feet makes a sound, but 'clapping' specifically refers to the hands."
+        },
+        {
+          "text": "Hands",
+          "isCorrect": true,
+          "rationale": "Clapping is the action of striking the palms of the hands together."
+        },
+        {
+          "text": "Legs",
+          "isCorrect": false,
+          "rationale": "Legs are used for walking and running, not for making a clapping sound."
+        },
+        {
+          "text": "Head",
+          "isCorrect": false,
+          "rationale": "The head is not used as a percussion instrument during clapping."
+        }
+      ],
+      "hint": "They are at the ends of your arms."
+    },
+    {
+      "question": "Which part of the leg makes contact with the ball when you want to kick it across the field?",
+      "answerOptions": [
+        {
+          "text": "Hand",
+          "isCorrect": false,
+          "rationale": "Using hands to touch the ball is usually not allowed in games like football."
+        },
+        {
+          "text": "Foot",
+          "isCorrect": true,
+          "rationale": "The foot is the part of the leg used to strike a ball for kicking."
+        },
+        {
+          "text": "Arm",
+          "isCorrect": false,
+          "rationale": "The arm is in the upper body and is not the primary part used for kicking."
+        },
+        {
+          "text": "Head",
+          "isCorrect": false,
+          "rationale": "While you can 'head' a ball, the question asks for the part of the leg used."
+        }
+      ],
+      "hint": "This is the same part you put your shoes on."
+    },
+    {
+      "question": "On which part of your body does your hair usually grow?",
+      "answerOptions": [
+        {
+          "text": "Leg",
+          "isCorrect": false,
+          "rationale": "While some hair can grow on legs, the most visible and thickest hair grows elsewhere."
+        },
+        {
+          "text": "Arm",
+          "isCorrect": false,
+          "rationale": "Hair on the arms is usually very fine compared to the hair mentioned in the source."
+        },
+        {
+          "text": "Head",
+          "isCorrect": true,
+          "rationale": "The scalp on the head is where our main head of hair grows."
+        },
+        {
+          "text": "Toe",
+          "isCorrect": false,
+          "rationale": "Hair does not typically grow in a significant way on the toes."
+        }
+      ],
+      "hint": "This part is at the very top of your body."
+    },
+    {
+      "question": "Which parts of your hand are essential for gripping a spoon or a pencil?",
+      "answerOptions": [
+        {
+          "text": "Toes",
+          "isCorrect": false,
+          "rationale": "Toes are on the feet and are not used for writing or eating with a spoon."
+        },
+        {
+          "text": "Fingers",
+          "isCorrect": true,
+          "rationale": "The digits on the hand allow for the precision and grip needed to hold small tools."
+        },
+        {
+          "text": "Legs",
+          "isCorrect": false,
+          "rationale": "Legs support our weight but do not have the ability to grip a pencil."
+        },
+        {
+          "text": "Head",
+          "isCorrect": false,
+          "rationale": "The head does not have any parts that can grip a pencil for writing."
+        }
+      ],
+      "hint": "You use these small digits to hold onto things tightly."
+    },
+    {
+      "question": "What do we call the very bottom part of the leg that touches the floor when you walk?",
+      "answerOptions": [
+        {
+          "text": "Arm",
+          "isCorrect": false,
+          "rationale": "The arm is part of the upper body and does not touch the floor when walking."
+        },
+        {
+          "text": "Hand",
+          "isCorrect": false,
+          "rationale": "Hands are used for touching things, but not for supporting the body during walking."
+        },
+        {
+          "text": "Foot",
+          "isCorrect": true,
+          "rationale": "The foot is the base of the leg and the point of contact with the ground."
+        },
+        {
+          "text": "Mouth",
+          "isCorrect": false,
+          "rationale": "The mouth is for eating and speaking and is nowhere near the floor during walking."
+        }
+      ],
+      "hint": "You have two of these, and they fit into your shoes."
+    },
+    {
+      "question": "Which joint allows you to fold your leg so you can crouch down low to the ground?",
+      "answerOptions": [
+        {
+          "text": "Nose",
+          "isCorrect": false,
+          "rationale": "The nose is on the face and does not bend to help the body crouch."
+        },
+        {
+          "text": "Hair",
+          "isCorrect": false,
+          "rationale": "Hair is a thread-like growth and not a joint used for movement."
+        },
+        {
+          "text": "Knee",
+          "isCorrect": true,
+          "rationale": "The knee is the hinge joint in the leg that allows for crouching and sitting."
+        },
+        {
+          "text": "Teeth",
+          "isCorrect": false,
+          "rationale": "Teeth are hard structures for chewing and do not assist in leg movement."
+        }
+      ],
+      "hint": "It is located in the middle of your leg."
+    },
+    {
+      "question": "What do the hand and fingers work together to do when you are using a pencil to write your name?",
+      "answerOptions": [
+        {
+          "text": "Run",
+          "isCorrect": false,
+          "rationale": "Running is an activity performed by the legs and feet."
+        },
+        {
+          "text": "Hold and move the pencil",
+          "isCorrect": true,
+          "rationale": "The fingers provide the grip and the hand provides the stability to guide the pencil."
+        },
+        {
+          "text": "Smell",
+          "isCorrect": false,
+          "rationale": "Smelling is the job of the nose, not the hands or fingers."
+        },
+        {
+          "text": "Listen",
+          "isCorrect": false,
+          "rationale": "Listening is the function of the ears."
+        }
+      ],
+      "hint": "Think about how you grip a pen or pencil."
+    },
+    {
+      "question": "What is the joint that connects your arm to the rest of your torso at the top?",
+      "answerOptions": [
+        {
+          "text": "Shoulder",
+          "isCorrect": true,
+          "rationale": "The arm starts at this point on the upper body and extends down to the hand."
+        },
+        {
+          "text": "Knee",
+          "isCorrect": false,
+          "rationale": "The knee is in the middle of the leg, not the top of the arm."
+        },
+        {
+          "text": "Foot",
+          "isCorrect": false,
+          "rationale": "The foot is at the bottom of the body and does not connect limbs to the torso."
+        },
+        {
+          "text": "Toe",
+          "isCorrect": false,
+          "rationale": "Toes are at the very end of the feet."
+        }
+      ],
+      "hint": "Your arm starts at this part of your upper body."
+    },
+    {
+      "question": "How many toes does a person usually have in total on both feet?",
+      "answerOptions": [
+        {
+          "text": "Five",
+          "isCorrect": false,
+          "rationale": "This is the number of toes on just one foot, not both combined."
+        },
+        {
+          "text": "Ten",
+          "isCorrect": true,
+          "rationale": "Since we have two feet and five toes on each, the total is ten."
+        },
+        {
+          "text": "Two",
+          "isCorrect": false,
+          "rationale": "This is the number of feet we have, not the number of toes."
+        },
+        {
+          "text": "Twenty",
+          "isCorrect": false,
+          "rationale": "This would be the total if we counted both fingers and toes together."
+        }
+      ],
+      "hint": "It is the same as the total number of fingers on two hands."
+    }
+  ],
+  "topics": {
+    "covered": [
+      "Anatomy of the Head and Face",
+      "Functions of Arms and Hands",
+      "Structure of Legs and Feet",
+      "Basics of the Human Skeleton"
+    ],
+    "followUp": [
+      "Coordination of Body Parts for Physical Activities",
+      "Comparing Fingers and Toes",
+      "The Role of Joints in Body Flexibility"
+    ]
+  }
+}
