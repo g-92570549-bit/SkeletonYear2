@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Body Quiz</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh; padding: 20px; color: #333;
+}
+.container { max-width: 700px; margin: 0 auto; }
+.header { text-align: center; color: #fff; padding: 30px 20px; }
+.header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+.header .meta { font-size: 14px; opacity: 0.9; }
+.progress-bar { background: rgba(255,255,255,0.3); border-radius: 10px; height: 8px; margin: 20px 0; overflow: hidden; }
+.progress-fill { background: #fff; height: 100%; width: 0%; transition: width 0.4s ease; border-radius: 10px; }
+.question { background: #fff; border-radius: 16px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); display: none; }
+.question.active { display: block; }
+.q-header { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 13px; color: #888; }
+.q-number { font-weight: 600; color: #667eea; }
+.q-text { font-size: 18px; font-weight: 600; line-height: 1.5; margin-bottom: 25px; color: #222; }
+.options { display: flex; flex-direction: column; gap: 12px; }
+.option-wrapper { display: flex; flex-direction: column; }
+.option {
+  display: flex; align-items: flex-start; gap: 14px; padding: 16px 18px;
+  border: 2px solid #e8e8e8; border-radius: 12px; background: #fafafa;
+  cursor: pointer; transition: all 0.2s; text-align: left; font-size: 15px; width: 100%;
+}
+[dir="rtl"] .option { text-align: right; flex-direction: row-reverse; }
+.option:hover:not(.disabled) { border-color: #667eea; background: #f5f3ff; }
+.option.selected { border-color: #667eea; background: #ede9fe; }
+.option.correct { border-color: #22c55e; background: #dcfce7; }
+.option.incorrect { border-color: #ef4444; background: #fee2e2; }
+.option.disabled { cursor: default; }
+.option.show-correct { border-color: #22c55e; background: #dcfce7; }
+.opt-label {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 50%; background: #e8e8e8;
+  font-weight: 700; font-size: 14px; flex-shrink: 0;
+}
+.option.selected .opt-label { background: #667eea; color: #fff; }
+.option.correct .opt-label { background: #22c55e; color: #fff; }
+.option.incorrect .opt-label { background: #ef4444; color: #fff; }
+.option.show-correct .opt-label { background: #22c55e; color: #fff; }
+.opt-text { padding-top: 5px; line-height: 1.5; }
+
+/* Individual option feedback */
+.option-feedback {
+  margin: 8px 0 4px 46px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+[dir="rtl"] .option-feedback { margin-left: 0; margin-right: 46px; }
+.option-feedback.correct-feedback {
+  background: #dcfce7;
+  border-left: 3px solid #22c55e;
+}
+.option-feedback.incorrect-feedback {
+  background: #fef3f2;
+  border-left: 3px solid #fca5a5;
+}
+[dir="rtl"] .option-feedback.correct-feedback,
+[dir="rtl"] .option-feedback.incorrect-feedback {
+  border-left: none;
+  border-right: 3px solid;
+}
+[dir="rtl"] .option-feedback.correct-feedback { border-right-color: #22c55e; }
+[dir="rtl"] .option-feedback.incorrect-feedback { border-right-color: #fca5a5; }
+.feedback-status {
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.feedback-status.correct { color: #166534; }
+.feedback-status.incorrect { color: #991b1b; }
+.feedback-rationale { color: #444; }
+
+/* Hint box */
+.hint-box {
+  margin: 12px 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+}
+.hint-toggle {
+  width: 100%;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400e;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hint-toggle:hover { background: #fef3c7; }
+.hint-content {
+  padding: 0 16px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s, padding 0.3s;
+  font-size: 14px;
+  color: #78350f;
+  line-height: 1.5;
+}
+.hint-box.show .hint-content {
+  padding: 0 16px 12px;
+  max-height: 200px;
+}
+
+.next-btn {
+  margin-top: 20px; width: 100%; padding: 14px;
+  background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border: none;
+  border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.next-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102,126,234,0.4); }
+.hidden { display: none !important; }
+.results { background: #fff; border-radius: 16px; padding: 40px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.15); display: none; }
+.results.active { display: block; }
+.results h2 { font-size: 28px; margin-bottom: 10px; color: #333; }
+.results .score { font-size: 64px; font-weight: 700; color: #667eea; margin: 20px 0; }
+.results .score-text { font-size: 18px; color: #666; margin-bottom: 30px; }
+.restart-btn {
+  padding: 14px 40px; background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer;
+}
+
+/* Math CSS */
+.math, .math-block { font-family: "Cambria Math", "Times New Roman", Times, serif; font-style: italic; }
+.math-block { display: block; text-align: center; margin: 10px 0; font-size: 110%; }
+.frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 3px; font-size: 0.9em; }
+.frac-num { border-bottom: 1px solid currentColor; padding: 0 4px 2px; line-height: 1.2; }
+.frac-den { padding: 2px 4px 0; line-height: 1.2; }
+.sqrt { white-space: nowrap; }
+.sqrt-content { border-top: 1px solid currentColor; padding: 0 3px; margin-left: 2px; }
+sup, sub { font-size: 0.75em; }
+sup { vertical-align: super; }
+sub { vertical-align: sub; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Body Quiz</h1>
+    <div class="meta">26 questions</div>
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+  </div>
+  <div id="quiz-container">
+        <div class="question" data-index="0">
+          <div class="q-header">
+            <span class="q-number">Question 1</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">Which parts of your face do you use to look at the bright colours in a picture book?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">Think about which part of your head helps you see things.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="false" data-rationale="These are used for collecting sounds rather than processing visual information.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Ears</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">These are used for collecting sounds rather than processing visual information.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="This part is primarily used for eating and speaking, not for vision.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Mouth</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">This part is primarily used for eating and speaking, not for vision.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="true" data-rationale="These organs are specifically designed to detect light and allow us to see the world around us.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Eyes</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">These organs are specifically designed to detect light and allow us to see the world around us.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="The function of this part is to breathe and detect different scents.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Nose</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The function of this part is to breathe and detect different scents.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="1">
+          <div class="q-header">
+            <span class="q-number">Question 2</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">If a bell rings at school, which part of your head helps you to hear the sound?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">You have one of these on each side of your head to listen to music or voices.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="false" data-rationale="These are hard structures used for chewing food, not for hearing.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Teeth</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">These are hard structures used for chewing food, not for hearing.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="Visual organs help us see the bell but do not process the sound it makes.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Eyes</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Visual organs help us see the bell but do not process the sound it makes.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="These are found on the hands and are used for touching or gripping objects.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Fingers</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">These are found on the hands and are used for touching or gripping objects.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="true" data-rationale="We have two of these on the sides of our head specifically for listening to sounds.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Ears</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">We have two of these on the sides of our head specifically for listening to sounds.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="2">
+          <div class="q-header">
+            <span class="q-number">Question 3</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">Which part of your face would you use to find out if a flower has a lovely scent?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">This part is located in the middle of your face.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="false" data-rationale="Hands are used for touching and holding, but they cannot detect scents.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Hand</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Hands are used for touching and holding, but they cannot detect scents.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="While the mouth is on the face, it is used for tasting and talking rather than smelling.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Mouth</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">While the mouth is on the face, it is used for tasting and talking rather than smelling.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="true" data-rationale="This part of the face contains the sensory receptors needed to detect smells.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Nose</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">This part of the face contains the sensory receptors needed to detect smells.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="This is a joint in the leg used for bending, not a facial feature.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Knee</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">This is a joint in the leg used for bending, not a facial feature.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="3">
+          <div class="q-header">
+            <span class="q-number">Question 4</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">Which part of your head is used for both speaking to your friends and eating your lunch?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">It is the part of your face that moves when you talk or chew.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="false" data-rationale="The head is the whole top section of the body, but a specific part within it performs these actions.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Head</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The head is the whole top section of the body, but a specific part within it performs these actions.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="Hands may hold the food, but they are not the part used to chew or speak.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Hand</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Hands may hold the food, but they are not the part used to chew or speak.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="true" data-rationale="This opening allows us to take in food and use our tongue and lips to form words.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Mouth</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">This opening allows us to take in food and use our tongue and lips to form words.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="The foot is at the bottom of the body and is used for walking.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Foot</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The foot is at the bottom of the body and is used for walking.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="4">
+          <div class="q-header">
+            <span class="q-number">Question 5</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">What is the name of the long part of your upper body that connects your shoulder to your hand?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">This part includes your biceps and your elbow.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="false" data-rationale="The head is at the top of the body and does not connect the shoulder to the hand.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Head</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The head is at the top of the body and does not connect the shoulder to the hand.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="true" data-rationale="This limb serves as the main link between the torso and the hand.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Arm</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">This limb serves as the main link between the torso and the hand.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="The foot is the very end of the leg, not the connector between the shoulder and hand.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Foot</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The foot is the very end of the leg, not the connector between the shoulder and hand.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="The leg is part of the lower body and connects the hip to the foot.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Leg</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The leg is part of the lower body and connects the hip to the foot.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="5">
+          <div class="q-header">
+            <span class="q-number">Question 6</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">Which long body parts allow you to run quickly around the playground?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">These start at your hips and end at your feet.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="true" data-rationale="These lower limbs are the primary parts used for walking, running, and jumping.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Legs</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">These lower limbs are the primary parts used for walking, running, and jumping.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="Hands are used for holding things, not for supporting the body while running.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Hands</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Hands are used for holding things, not for supporting the body while running.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="Arms may swing while running, but they do not provide the power to move across the ground.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Arms</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Arms may swing while running, but they do not provide the power to move across the ground.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="Ears are for hearing and do not play a role in physical movement across a distance.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Ears</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Ears are for hearing and do not play a role in physical movement across a distance.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="6">
+          <div class="q-header">
+            <span class="q-number">Question 7</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">What are the small, thin parts on your hand that help you pick up a tiny marble?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">You have ten of these in total on your two hands.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="true" data-rationale="We have five of these on each hand to help us grip, touch, and feel small objects.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Fingers</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">We have five of these on each hand to help us grip, touch, and feel small objects.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="The arm is the large limb, while the smaller parts at the end do the actual gripping.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Arms</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The arm is the large limb, while the smaller parts at the end do the actual gripping.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="Toes are found on the feet and are not usually used for fine gripping tasks.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Toes</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Toes are found on the feet and are not usually used for fine gripping tasks.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="Legs are used for movement and are much too large for picking up marbles.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Legs</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Legs are used for movement and are much too large for picking up marbles.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="7">
+          <div class="q-header">
+            <span class="q-number">Question 8</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">Which parts of your body do you place inside your socks and shoes?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">These are at the very bottom of your legs.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="false" data-rationale="The head is covered by a hat, not by shoes.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Heads</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The head is covered by a hat, not by shoes.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="Hands are usually kept in gloves or mittens rather than socks and shoes.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Hands</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Hands are usually kept in gloves or mittens rather than socks and shoes.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="true" data-rationale="These parts are at the bottom of our legs and need protection from the ground.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Feet</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">These parts are at the bottom of our legs and need protection from the ground.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="Arms are covered by sleeves, not by footwear.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Arms</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Arms are covered by sleeves, not by footwear.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="8">
+          <div class="q-header">
+            <span class="q-number">Question 9</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">When you want to drink a glass of water, which part of your arm do you bend to move the glass to your mouth?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">It is the hinge-like joint in the middle of your arm.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="true" data-rationale="This joint in the middle of the arm allows it to fold so the hand can reach the face.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Elbow</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">This joint in the middle of the arm allows it to fold so the hand can reach the face.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="The foot is too far away from the glass and the mouth to assist in drinking.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Foot</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The foot is too far away from the glass and the mouth to assist in drinking.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="The knee is in the leg and does not help move the arm toward the mouth.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Knee</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The knee is in the leg and does not help move the arm toward the mouth.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="Fingers hold the glass, but the arm itself bends at a different point to lift it.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Finger</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Fingers hold the glass, but the arm itself bends at a different point to lift it.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="9">
+          <div class="q-header">
+            <span class="q-number">Question 10</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">Which part of your leg must bend so that you can sit down on a small chair?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">It is the hard, round part in the middle of your leg.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="false" data-rationale="The hand is used for holding, not for bending the leg.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Hand</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The hand is used for holding, not for bending the leg.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="true" data-rationale="This joint allows the leg to fold, which is necessary for sitting or kneeling.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Knee</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">This joint allows the leg to fold, which is necessary for sitting or kneeling.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="The elbow is part of the arm and is not used to sit down.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Elbow</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The elbow is part of the arm and is not used to sit down.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="The nose is a facial feature and has no role in the movement of the legs.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Nose</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The nose is a facial feature and has no role in the movement of the legs.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="10">
+          <div class="q-header">
+            <span class="q-number">Question 11</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">What is the specific name for the hard bone in your head that keeps your brain safe?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">It is also known as the head skeleton.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="false" data-rationale="This refers to the bones in your hand, which do not protect the brain.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Hand skeleton</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">This refers to the bones in your hand, which do not protect the brain.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="The foot bones are located at the bottom of the body and serve a different purpose.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Foot skeleton</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The foot bones are located at the bottom of the body and serve a different purpose.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="true" data-rationale="The skull is the part of the head skeleton designed to encase and protect the brain.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Skull</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The skull is the part of the head skeleton designed to encase and protect the brain.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="The arm bones are for movement and reaching, not for protecting the head.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Arm skeleton</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The arm bones are for movement and reaching, not for protecting the head.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="11">
+          <div class="q-header">
+            <span class="q-number">Question 12</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">What do we call the whole collection of hard, white bones that are inside our body?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">This internal frame helps you stand up straight.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="false" data-rationale="A school is a place where we learn, not a part of our internal body structure.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">School</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">A school is a place where we learn, not a part of our internal body structure.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="true" data-rationale="The skeleton is the framework of bones that supports our body and protects our organs.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Skeleton</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The skeleton is the framework of bones that supports our body and protects our organs.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="A jacket is a piece of clothing worn on the outside of the body.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Jacket</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">A jacket is a piece of clothing worn on the outside of the body.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="A classroom is a room within a building, not an internal body part.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Classroom</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">A classroom is a room within a building, not an internal body part.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="12">
+          <div class="q-header">
+            <span class="q-number">Question 13</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">What can you feel if you press on the hard parts inside your fingers or your shins?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">These make up the skeleton inside your body.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="true" data-rationale="Bones are the hard pieces of the skeleton that provide structure and can be felt through the skin.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Bones</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Bones are the hard pieces of the skeleton that provide structure and can be felt through the skin.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="While our bodies contain water, it is liquid and not the hard structure we feel under the skin.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Water</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">While our bodies contain water, it is liquid and not the hard structure we feel under the skin.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="Hair grows on the surface of the skin and is soft, not hard and internal.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Hair</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Hair grows on the surface of the skin and is soft, not hard and internal.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="Food is processed in the stomach and is not part of the structure of the fingers or shins.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Food</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Food is processed in the stomach and is not part of the structure of the fingers or shins.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="13">
+          <div class="q-header">
+            <span class="q-number">Question 14</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">Why is it important to have bones inside our arms and legs?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">Think about how you would stay upright if your body was just soft skin and muscle.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="false" data-rationale="Eye colour is determined by genetics and the iris, not by the bones in our arms or legs.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">To change our eye colour</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Eye colour is determined by genetics and the iris, not by the bones in our arms or legs.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="Sleep is a biological process that does not directly depend on the presence of bones in the limbs.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">To help us sleep</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Sleep is a biological process that does not directly depend on the presence of bones in the limbs.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="true" data-rationale="Bones provide the rigid structure needed for muscles to pull against so we can move and stay upright.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">To help us stand and move</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Bones provide the rigid structure needed for muscles to pull against so we can move and stay upright.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="While the jawbone helps with chewing, the bones in our limbs are for posture and locomotion.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">To help us eat</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">While the jawbone helps with chewing, the bones in our limbs are for posture and locomotion.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="14">
+          <div class="q-header">
+            <span class="q-number">Question 15</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">What are the small parts at the very end of your feet called?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">You have five of these on each foot.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="false" data-rationale="Knees are the joints in the middle of the leg, far from the end of the foot.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Knees</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Knees are the joints in the middle of the leg, far from the end of the foot.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="Fingers are the equivalent parts found on the hands, not the feet.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Fingers</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Fingers are the equivalent parts found on the hands, not the feet.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="Eyes are facial features used for seeing and are not located on the feet.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Eyes</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Eyes are facial features used for seeing and are not located on the feet.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="true" data-rationale="These are the ten small digits found at the front of the feet.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Toes</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">These are the ten small digits found at the front of the feet.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="15">
+          <div class="q-header">
+            <span class="q-number">Question 16</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">Which part of your skeleton is found at the very bottom and helps you balance when you stand up?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">It is the set of bones inside the part of your body that touches the floor.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="true" data-rationale="The bones in the feet provide a wide base that supports the weight of the entire body.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Foot skeleton</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The bones in the feet provide a wide base that supports the weight of the entire body.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="The hands are for grasping and are not typically used to balance the body while standing.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Hand skeleton</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The hands are for grasping and are not typically used to balance the body while standing.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="Arm bones are designed for reaching and lifting rather than supporting standing weight.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Arm skeleton</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Arm bones are designed for reaching and lifting rather than supporting standing weight.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="The head skeleton is at the top and protects the brain, but it doesn't touch the ground for balance.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Head skeleton</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The head skeleton is at the top and protects the brain, but it doesn't touch the ground for balance.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="16">
+          <div class="q-header">
+            <span class="q-number">Question 17</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">When you nod your face up and down to say 'yes' without using words, which part are you moving?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">This part is at the very top of your body.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="false" data-rationale="Toes are too small and too far down to be seen clearly during a conversation.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Toe</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Toes are too small and too far down to be seen clearly during a conversation.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="true" data-rationale="Nodding involves moving the entire top section of the body where the face is located.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Head</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Nodding involves moving the entire top section of the body where the face is located.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="Moving the hand might be a wave, but it is not a 'nod'.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Hand</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Moving the hand might be a wave, but it is not a 'nod'.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="Moving the foot is not a standard gesture for agreeing with someone.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Foot</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Moving the foot is not a standard gesture for agreeing with someone.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="17">
+          <div class="q-header">
+            <span class="q-number">Question 18</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">Which two body parts do you bring together to make a loud sound when you are clapping for a friend?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">They are at the ends of your arms.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="false" data-rationale="Stamping feet makes a sound, but 'clapping' specifically refers to the hands.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Feet</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Stamping feet makes a sound, but 'clapping' specifically refers to the hands.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="Legs are used for walking and running, not for making a clapping sound.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Legs</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Legs are used for walking and running, not for making a clapping sound.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="The head is not used as a percussion instrument during clapping.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Head</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The head is not used as a percussion instrument during clapping.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="true" data-rationale="Clapping is the action of striking the palms of the hands together.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Hands</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Clapping is the action of striking the palms of the hands together.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="18">
+          <div class="q-header">
+            <span class="q-number">Question 19</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">Which part of the leg makes contact with the ball when you want to kick it across the field?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">This is the same part you put your shoes on.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="false" data-rationale="The arm is in the upper body and is not the primary part used for kicking.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Arm</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The arm is in the upper body and is not the primary part used for kicking.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="true" data-rationale="The foot is the part of the leg used to strike a ball for kicking.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Foot</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The foot is the part of the leg used to strike a ball for kicking.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="Using hands to touch the ball is usually not allowed in games like football.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Hand</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Using hands to touch the ball is usually not allowed in games like football.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="While you can 'head' a ball, the question asks for the part of the leg used.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Head</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">While you can 'head' a ball, the question asks for the part of the leg used.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="19">
+          <div class="q-header">
+            <span class="q-number">Question 20</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">On which part of your body does your hair usually grow?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">This part is at the very top of your body.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="false" data-rationale="Hair on the arms is usually very fine compared to the hair mentioned in the source.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Arm</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Hair on the arms is usually very fine compared to the hair mentioned in the source.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="true" data-rationale="The scalp on the head is where our main head of hair grows.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Head</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The scalp on the head is where our main head of hair grows.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="While some hair can grow on legs, the most visible and thickest hair grows elsewhere.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Leg</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">While some hair can grow on legs, the most visible and thickest hair grows elsewhere.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="Hair does not typically grow in a significant way on the toes.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Toe</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Hair does not typically grow in a significant way on the toes.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="20">
+          <div class="q-header">
+            <span class="q-number">Question 21</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">Which parts of your hand are essential for gripping a spoon or a pencil?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">You use these small digits to hold onto things tightly.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="true" data-rationale="The digits on the hand allow for the precision and grip needed to hold small tools.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Fingers</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The digits on the hand allow for the precision and grip needed to hold small tools.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="Legs support our weight but do not have the ability to grip a pencil.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Legs</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Legs support our weight but do not have the ability to grip a pencil.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="The head does not have any parts that can grip a pencil for writing.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Head</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The head does not have any parts that can grip a pencil for writing.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="Toes are on the feet and are not used for writing or eating with a spoon.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Toes</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Toes are on the feet and are not used for writing or eating with a spoon.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="21">
+          <div class="q-header">
+            <span class="q-number">Question 22</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">What do we call the very bottom part of the leg that touches the floor when you walk?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">You have two of these, and they fit into your shoes.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="false" data-rationale="Hands are used for touching things, but not for supporting the body during walking.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Hand</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Hands are used for touching things, but not for supporting the body during walking.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="true" data-rationale="The foot is the base of the leg and the point of contact with the ground.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Foot</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The foot is the base of the leg and the point of contact with the ground.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="The arm is part of the upper body and does not touch the floor when walking.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Arm</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The arm is part of the upper body and does not touch the floor when walking.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="The mouth is for eating and speaking and is nowhere near the floor during walking.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Mouth</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The mouth is for eating and speaking and is nowhere near the floor during walking.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="22">
+          <div class="q-header">
+            <span class="q-number">Question 23</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">Which joint allows you to fold your leg so you can crouch down low to the ground?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">It is located in the middle of your leg.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="true" data-rationale="The knee is the hinge joint in the leg that allows for crouching and sitting.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Knee</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The knee is the hinge joint in the leg that allows for crouching and sitting.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="Teeth are hard structures for chewing and do not assist in leg movement.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Teeth</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Teeth are hard structures for chewing and do not assist in leg movement.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="The nose is on the face and does not bend to help the body crouch.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Nose</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The nose is on the face and does not bend to help the body crouch.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="Hair is a thread-like growth and not a joint used for movement.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Hair</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Hair is a thread-like growth and not a joint used for movement.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="23">
+          <div class="q-header">
+            <span class="q-number">Question 24</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">What do the hand and fingers work together to do when you are using a pencil to write your name?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">Think about how you grip a pen or pencil.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="true" data-rationale="The fingers provide the grip and the hand provides the stability to guide the pencil.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Hold and move the pencil</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The fingers provide the grip and the hand provides the stability to guide the pencil.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="Smelling is the job of the nose, not the hands or fingers.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Smell</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Smelling is the job of the nose, not the hands or fingers.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="Running is an activity performed by the legs and feet.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Run</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Running is an activity performed by the legs and feet.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="Listening is the function of the ears.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Listen</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Listening is the function of the ears.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="24">
+          <div class="q-header">
+            <span class="q-number">Question 25</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">What is the joint that connects your arm to the rest of your torso at the top?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">Your arm starts at this part of your upper body.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="true" data-rationale="The arm starts at this point on the upper body and extends down to the hand.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Shoulder</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The arm starts at this point on the upper body and extends down to the hand.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="The knee is in the middle of the leg, not the top of the arm.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Knee</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The knee is in the middle of the leg, not the top of the arm.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="The foot is at the bottom of the body and does not connect limbs to the torso.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Foot</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">The foot is at the bottom of the body and does not connect limbs to the torso.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="false" data-rationale="Toes are at the very end of the feet.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Toe</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Toes are at the very end of the feet.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      
+        <div class="question" data-index="25">
+          <div class="q-header">
+            <span class="q-number">Question 26</span>
+            <span class="q-of">/ 26</span>
+          </div>
+          <div class="q-text">How many toes does a person usually have in total on both feet?</div>
+          
+        <div class="hint-box">
+          <button class="hint-toggle" onclick="this.parentElement.classList.toggle('show')">
+            💡 Hint
+          </button>
+          <div class="hint-content">It is the same as the total number of fingers on two hands.</div>
+        </div>
+      
+          <div class="options">
+        <div class="option-wrapper">
+          <button class="option" data-label="A" data-correct="false" data-rationale="This is the number of toes on just one foot, not both combined.">
+            <span class="opt-label">A</span>
+            <span class="opt-text">Five</span>
+          </button>
+          <div class="option-feedback hidden" data-for="A">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">This is the number of toes on just one foot, not both combined.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="B" data-correct="false" data-rationale="This is the number of feet we have, not the number of toes.">
+            <span class="opt-label">B</span>
+            <span class="opt-text">Two</span>
+          </button>
+          <div class="option-feedback hidden" data-for="B">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">This is the number of feet we have, not the number of toes.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="C" data-correct="false" data-rationale="This would be the total if we counted both fingers and toes together.">
+            <span class="opt-label">C</span>
+            <span class="opt-text">Twenty</span>
+          </button>
+          <div class="option-feedback hidden" data-for="C">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">This would be the total if we counted both fingers and toes together.</div>
+          </div>
+        </div>
+      
+        <div class="option-wrapper">
+          <button class="option" data-label="D" data-correct="true" data-rationale="Since we have two feet and five toes on each, the total is ten.">
+            <span class="opt-label">D</span>
+            <span class="opt-text">Ten</span>
+          </button>
+          <div class="option-feedback hidden" data-for="D">
+            <div class="feedback-status"></div>
+            <div class="feedback-rationale">Since we have two feet and five toes on each, the total is ten.</div>
+          </div>
+        </div>
+      </div>
+          <button class="next-btn hidden">Next Question →</button>
+        </div>
+      </div>
+  <div class="results" id="results">
+    <h2>Quiz Complete!</h2>
+    <div class="score" id="score">0%</div>
+    <div class="score-text" id="score-text"></div>
+    <button class="restart-btn" onclick="restart()">Try Again</button>
+  </div>
+</div>
+<script>
+const quizData = [{"question":"Which parts of your face do you use to look at the bright colours in a picture book?","hint":"Think about which part of your head helps you see things.","options":[{"label":"A","text":"Ears","isCorrect":false,"rationale":"These are used for collecting sounds rather than processing visual information."},{"label":"B","text":"Mouth","isCorrect":false,"rationale":"This part is primarily used for eating and speaking, not for vision."},{"label":"C","text":"Eyes","isCorrect":true,"rationale":"These organs are specifically designed to detect light and allow us to see the world around us."},{"label":"D","text":"Nose","isCorrect":false,"rationale":"The function of this part is to breathe and detect different scents."}]},{"question":"If a bell rings at school, which part of your head helps you to hear the sound?","hint":"You have one of these on each side of your head to listen to music or voices.","options":[{"label":"A","text":"Teeth","isCorrect":false,"rationale":"These are hard structures used for chewing food, not for hearing."},{"label":"B","text":"Eyes","isCorrect":false,"rationale":"Visual organs help us see the bell but do not process the sound it makes."},{"label":"C","text":"Fingers","isCorrect":false,"rationale":"These are found on the hands and are used for touching or gripping objects."},{"label":"D","text":"Ears","isCorrect":true,"rationale":"We have two of these on the sides of our head specifically for listening to sounds."}]},{"question":"Which part of your face would you use to find out if a flower has a lovely scent?","hint":"This part is located in the middle of your face.","options":[{"label":"A","text":"Hand","isCorrect":false,"rationale":"Hands are used for touching and holding, but they cannot detect scents."},{"label":"B","text":"Mouth","isCorrect":false,"rationale":"While the mouth is on the face, it is used for tasting and talking rather than smelling."},{"label":"C","text":"Nose","isCorrect":true,"rationale":"This part of the face contains the sensory receptors needed to detect smells."},{"label":"D","text":"Knee","isCorrect":false,"rationale":"This is a joint in the leg used for bending, not a facial feature."}]},{"question":"Which part of your head is used for both speaking to your friends and eating your lunch?","hint":"It is the part of your face that moves when you talk or chew.","options":[{"label":"A","text":"Head","isCorrect":false,"rationale":"The head is the whole top section of the body, but a specific part within it performs these actions."},{"label":"B","text":"Hand","isCorrect":false,"rationale":"Hands may hold the food, but they are not the part used to chew or speak."},{"label":"C","text":"Mouth","isCorrect":true,"rationale":"This opening allows us to take in food and use our tongue and lips to form words."},{"label":"D","text":"Foot","isCorrect":false,"rationale":"The foot is at the bottom of the body and is used for walking."}]},{"question":"What is the name of the long part of your upper body that connects your shoulder to your hand?","hint":"This part includes your biceps and your elbow.","options":[{"label":"A","text":"Head","isCorrect":false,"rationale":"The head is at the top of the body and does not connect the shoulder to the hand."},{"label":"B","text":"Arm","isCorrect":true,"rationale":"This limb serves as the main link between the torso and the hand."},{"label":"C","text":"Foot","isCorrect":false,"rationale":"The foot is the very end of the leg, not the connector between the shoulder and hand."},{"label":"D","text":"Leg","isCorrect":false,"rationale":"The leg is part of the lower body and connects the hip to the foot."}]},{"question":"Which long body parts allow you to run quickly around the playground?","hint":"These start at your hips and end at your feet.","options":[{"label":"A","text":"Legs","isCorrect":true,"rationale":"These lower limbs are the primary parts used for walking, running, and jumping."},{"label":"B","text":"Hands","isCorrect":false,"rationale":"Hands are used for holding things, not for supporting the body while running."},{"label":"C","text":"Arms","isCorrect":false,"rationale":"Arms may swing while running, but they do not provide the power to move across the ground."},{"label":"D","text":"Ears","isCorrect":false,"rationale":"Ears are for hearing and do not play a role in physical movement across a distance."}]},{"question":"What are the small, thin parts on your hand that help you pick up a tiny marble?","hint":"You have ten of these in total on your two hands.","options":[{"label":"A","text":"Fingers","isCorrect":true,"rationale":"We have five of these on each hand to help us grip, touch, and feel small objects."},{"label":"B","text":"Arms","isCorrect":false,"rationale":"The arm is the large limb, while the smaller parts at the end do the actual gripping."},{"label":"C","text":"Toes","isCorrect":false,"rationale":"Toes are found on the feet and are not usually used for fine gripping tasks."},{"label":"D","text":"Legs","isCorrect":false,"rationale":"Legs are used for movement and are much too large for picking up marbles."}]},{"question":"Which parts of your body do you place inside your socks and shoes?","hint":"These are at the very bottom of your legs.","options":[{"label":"A","text":"Heads","isCorrect":false,"rationale":"The head is covered by a hat, not by shoes."},{"label":"B","text":"Hands","isCorrect":false,"rationale":"Hands are usually kept in gloves or mittens rather than socks and shoes."},{"label":"C","text":"Feet","isCorrect":true,"rationale":"These parts are at the bottom of our legs and need protection from the ground."},{"label":"D","text":"Arms","isCorrect":false,"rationale":"Arms are covered by sleeves, not by footwear."}]},{"question":"When you want to drink a glass of water, which part of your arm do you bend to move the glass to your mouth?","hint":"It is the hinge-like joint in the middle of your arm.","options":[{"label":"A","text":"Elbow","isCorrect":true,"rationale":"This joint in the middle of the arm allows it to fold so the hand can reach the face."},{"label":"B","text":"Foot","isCorrect":false,"rationale":"The foot is too far away from the glass and the mouth to assist in drinking."},{"label":"C","text":"Knee","isCorrect":false,"rationale":"The knee is in the leg and does not help move the arm toward the mouth."},{"label":"D","text":"Finger","isCorrect":false,"rationale":"Fingers hold the glass, but the arm itself bends at a different point to lift it."}]},{"question":"Which part of your leg must bend so that you can sit down on a small chair?","hint":"It is the hard, round part in the middle of your leg.","options":[{"label":"A","text":"Hand","isCorrect":false,"rationale":"The hand is used for holding, not for bending the leg."},{"label":"B","text":"Knee","isCorrect":true,"rationale":"This joint allows the leg to fold, which is necessary for sitting or kneeling."},{"label":"C","text":"Elbow","isCorrect":false,"rationale":"The elbow is part of the arm and is not used to sit down."},{"label":"D","text":"Nose","isCorrect":false,"rationale":"The nose is a facial feature and has no role in the movement of the legs."}]},{"question":"What is the specific name for the hard bone in your head that keeps your brain safe?","hint":"It is also known as the head skeleton.","options":[{"label":"A","text":"Hand skeleton","isCorrect":false,"rationale":"This refers to the bones in your hand, which do not protect the brain."},{"label":"B","text":"Foot skeleton","isCorrect":false,"rationale":"The foot bones are located at the bottom of the body and serve a different purpose."},{"label":"C","text":"Skull","isCorrect":true,"rationale":"The skull is the part of the head skeleton designed to encase and protect the brain."},{"label":"D","text":"Arm skeleton","isCorrect":false,"rationale":"The arm bones are for movement and reaching, not for protecting the head."}]},{"question":"What do we call the whole collection of hard, white bones that are inside our body?","hint":"This internal frame helps you stand up straight.","options":[{"label":"A","text":"School","isCorrect":false,"rationale":"A school is a place where we learn, not a part of our internal body structure."},{"label":"B","text":"Skeleton","isCorrect":true,"rationale":"The skeleton is the framework of bones that supports our body and protects our organs."},{"label":"C","text":"Jacket","isCorrect":false,"rationale":"A jacket is a piece of clothing worn on the outside of the body."},{"label":"D","text":"Classroom","isCorrect":false,"rationale":"A classroom is a room within a building, not an internal body part."}]},{"question":"What can you feel if you press on the hard parts inside your fingers or your shins?","hint":"These make up the skeleton inside your body.","options":[{"label":"A","text":"Bones","isCorrect":true,"rationale":"Bones are the hard pieces of the skeleton that provide structure and can be felt through the skin."},{"label":"B","text":"Water","isCorrect":false,"rationale":"While our bodies contain water, it is liquid and not the hard structure we feel under the skin."},{"label":"C","text":"Hair","isCorrect":false,"rationale":"Hair grows on the surface of the skin and is soft, not hard and internal."},{"label":"D","text":"Food","isCorrect":false,"rationale":"Food is processed in the stomach and is not part of the structure of the fingers or shins."}]},{"question":"Why is it important to have bones inside our arms and legs?","hint":"Think about how you would stay upright if your body was just soft skin and muscle.","options":[{"label":"A","text":"To change our eye colour","isCorrect":false,"rationale":"Eye colour is determined by genetics and the iris, not by the bones in our arms or legs."},{"label":"B","text":"To help us sleep","isCorrect":false,"rationale":"Sleep is a biological process that does not directly depend on the presence of bones in the limbs."},{"label":"C","text":"To help us stand and move","isCorrect":true,"rationale":"Bones provide the rigid structure needed for muscles to pull against so we can move and stay upright."},{"label":"D","text":"To help us eat","isCorrect":false,"rationale":"While the jawbone helps with chewing, the bones in our limbs are for posture and locomotion."}]},{"question":"What are the small parts at the very end of your feet called?","hint":"You have five of these on each foot.","options":[{"label":"A","text":"Knees","isCorrect":false,"rationale":"Knees are the joints in the middle of the leg, far from the end of the foot."},{"label":"B","text":"Fingers","isCorrect":false,"rationale":"Fingers are the equivalent parts found on the hands, not the feet."},{"label":"C","text":"Eyes","isCorrect":false,"rationale":"Eyes are facial features used for seeing and are not located on the feet."},{"label":"D","text":"Toes","isCorrect":true,"rationale":"These are the ten small digits found at the front of the feet."}]},{"question":"Which part of your skeleton is found at the very bottom and helps you balance when you stand up?","hint":"It is the set of bones inside the part of your body that touches the floor.","options":[{"label":"A","text":"Foot skeleton","isCorrect":true,"rationale":"The bones in the feet provide a wide base that supports the weight of the entire body."},{"label":"B","text":"Hand skeleton","isCorrect":false,"rationale":"The hands are for grasping and are not typically used to balance the body while standing."},{"label":"C","text":"Arm skeleton","isCorrect":false,"rationale":"Arm bones are designed for reaching and lifting rather than supporting standing weight."},{"label":"D","text":"Head skeleton","isCorrect":false,"rationale":"The head skeleton is at the top and protects the brain, but it doesn't touch the ground for balance."}]},{"question":"When you nod your face up and down to say 'yes' without using words, which part are you moving?","hint":"This part is at the very top of your body.","options":[{"label":"A","text":"Toe","isCorrect":false,"rationale":"Toes are too small and too far down to be seen clearly during a conversation."},{"label":"B","text":"Head","isCorrect":true,"rationale":"Nodding involves moving the entire top section of the body where the face is located."},{"label":"C","text":"Hand","isCorrect":false,"rationale":"Moving the hand might be a wave, but it is not a 'nod'."},{"label":"D","text":"Foot","isCorrect":false,"rationale":"Moving the foot is not a standard gesture for agreeing with someone."}]},{"question":"Which two body parts do you bring together to make a loud sound when you are clapping for a friend?","hint":"They are at the ends of your arms.","options":[{"label":"A","text":"Feet","isCorrect":false,"rationale":"Stamping feet makes a sound, but 'clapping' specifically refers to the hands."},{"label":"B","text":"Legs","isCorrect":false,"rationale":"Legs are used for walking and running, not for making a clapping sound."},{"label":"C","text":"Head","isCorrect":false,"rationale":"The head is not used as a percussion instrument during clapping."},{"label":"D","text":"Hands","isCorrect":true,"rationale":"Clapping is the action of striking the palms of the hands together."}]},{"question":"Which part of the leg makes contact with the ball when you want to kick it across the field?","hint":"This is the same part you put your shoes on.","options":[{"label":"A","text":"Arm","isCorrect":false,"rationale":"The arm is in the upper body and is not the primary part used for kicking."},{"label":"B","text":"Foot","isCorrect":true,"rationale":"The foot is the part of the leg used to strike a ball for kicking."},{"label":"C","text":"Hand","isCorrect":false,"rationale":"Using hands to touch the ball is usually not allowed in games like football."},{"label":"D","text":"Head","isCorrect":false,"rationale":"While you can 'head' a ball, the question asks for the part of the leg used."}]},{"question":"On which part of your body does your hair usually grow?","hint":"This part is at the very top of your body.","options":[{"label":"A","text":"Arm","isCorrect":false,"rationale":"Hair on the arms is usually very fine compared to the hair mentioned in the source."},{"label":"B","text":"Head","isCorrect":true,"rationale":"The scalp on the head is where our main head of hair grows."},{"label":"C","text":"Leg","isCorrect":false,"rationale":"While some hair can grow on legs, the most visible and thickest hair grows elsewhere."},{"label":"D","text":"Toe","isCorrect":false,"rationale":"Hair does not typically grow in a significant way on the toes."}]},{"question":"Which parts of your hand are essential for gripping a spoon or a pencil?","hint":"You use these small digits to hold onto things tightly.","options":[{"label":"A","text":"Fingers","isCorrect":true,"rationale":"The digits on the hand allow for the precision and grip needed to hold small tools."},{"label":"B","text":"Legs","isCorrect":false,"rationale":"Legs support our weight but do not have the ability to grip a pencil."},{"label":"C","text":"Head","isCorrect":false,"rationale":"The head does not have any parts that can grip a pencil for writing."},{"label":"D","text":"Toes","isCorrect":false,"rationale":"Toes are on the feet and are not used for writing or eating with a spoon."}]},{"question":"What do we call the very bottom part of the leg that touches the floor when you walk?","hint":"You have two of these, and they fit into your shoes.","options":[{"label":"A","text":"Hand","isCorrect":false,"rationale":"Hands are used for touching things, but not for supporting the body during walking."},{"label":"B","text":"Foot","isCorrect":true,"rationale":"The foot is the base of the leg and the point of contact with the ground."},{"label":"C","text":"Arm","isCorrect":false,"rationale":"The arm is part of the upper body and does not touch the floor when walking."},{"label":"D","text":"Mouth","isCorrect":false,"rationale":"The mouth is for eating and speaking and is nowhere near the floor during walking."}]},{"question":"Which joint allows you to fold your leg so you can crouch down low to the ground?","hint":"It is located in the middle of your leg.","options":[{"label":"A","text":"Knee","isCorrect":true,"rationale":"The knee is the hinge joint in the leg that allows for crouching and sitting."},{"label":"B","text":"Teeth","isCorrect":false,"rationale":"Teeth are hard structures for chewing and do not assist in leg movement."},{"label":"C","text":"Nose","isCorrect":false,"rationale":"The nose is on the face and does not bend to help the body crouch."},{"label":"D","text":"Hair","isCorrect":false,"rationale":"Hair is a thread-like growth and not a joint used for movement."}]},{"question":"What do the hand and fingers work together to do when you are using a pencil to write your name?","hint":"Think about how you grip a pen or pencil.","options":[{"label":"A","text":"Hold and move the pencil","isCorrect":true,"rationale":"The fingers provide the grip and the hand provides the stability to guide the pencil."},{"label":"B","text":"Smell","isCorrect":false,"rationale":"Smelling is the job of the nose, not the hands or fingers."},{"label":"C","text":"Run","isCorrect":false,"rationale":"Running is an activity performed by the legs and feet."},{"label":"D","text":"Listen","isCorrect":false,"rationale":"Listening is the function of the ears."}]},{"question":"What is the joint that connects your arm to the rest of your torso at the top?","hint":"Your arm starts at this part of your upper body.","options":[{"label":"A","text":"Shoulder","isCorrect":true,"rationale":"The arm starts at this point on the upper body and extends down to the hand."},{"label":"B","text":"Knee","isCorrect":false,"rationale":"The knee is in the middle of the leg, not the top of the arm."},{"label":"C","text":"Foot","isCorrect":false,"rationale":"The foot is at the bottom of the body and does not connect limbs to the torso."},{"label":"D","text":"Toe","isCorrect":false,"rationale":"Toes are at the very end of the feet."}]},{"question":"How many toes does a person usually have in total on both feet?","hint":"It is the same as the total number of fingers on two hands.","options":[{"label":"A","text":"Five","isCorrect":false,"rationale":"This is the number of toes on just one foot, not both combined."},{"label":"B","text":"Two","isCorrect":false,"rationale":"This is the number of feet we have, not the number of toes."},{"label":"C","text":"Twenty","isCorrect":false,"rationale":"This would be the total if we counted both fingers and toes together."},{"label":"D","text":"Ten","isCorrect":true,"rationale":"Since we have two feet and five toes on each, the total is ten."}]}];
+const tr = {"correct":"Correct!","incorrect":"Incorrect","next":"Next Question →","seeResults":"See Results","complete":"Quiz Complete!","scoreText":"You got {correct} out of {total} correct","tryAgain":"Try Again","rightAnswer":"Right answer","notQuite":"Not quite"};
+let currentQ = 0, correctCount = 0, answered = false;
+
+function init() {
+  document.querySelectorAll('.question').forEach((q, i) => q.classList.toggle('active', i === 0));
+  updateProgress();
+  document.querySelectorAll('.option').forEach(opt => opt.addEventListener('click', () => selectOption(opt)));
+  document.querySelectorAll('.next-btn').forEach(btn => btn.addEventListener('click', nextQuestion));
+}
+
+function selectOption(opt) {
+  if (answered) return;
+  answered = true;
+  const q = opt.closest('.question');
+  const options = q.querySelectorAll('.option');
+  const nextBtn = q.querySelector('.next-btn');
+  const isCorrect = opt.dataset.correct === 'true';
+  
+  // Mark all options as disabled
+  options.forEach(o => o.classList.add('disabled'));
+  
+  // Style selected option
+  opt.classList.add('selected', isCorrect ? 'correct' : 'incorrect');
+  
+  // Show correct answer if wrong
+  if (!isCorrect) {
+    const correctOpt = [...options].find(o => o.dataset.correct === 'true');
+    if (correctOpt) correctOpt.classList.add('show-correct');
+  }
+  
+  if (isCorrect) correctCount++;
+  
+  // Show feedback for ALL options that have rationale
+  options.forEach(o => {
+    const wrapper = o.closest('.option-wrapper');
+    const feedback = wrapper.querySelector('.option-feedback');
+    const rationale = o.dataset.rationale;
+    const isThisCorrect = o.dataset.correct === 'true';
+    
+    if (rationale && rationale.trim()) {
+      feedback.classList.remove('hidden');
+      feedback.classList.add(isThisCorrect ? 'correct-feedback' : 'incorrect-feedback');
+      
+      const statusEl = feedback.querySelector('.feedback-status');
+      statusEl.className = 'feedback-status ' + (isThisCorrect ? 'correct' : 'incorrect');
+      statusEl.innerHTML = isThisCorrect 
+        ? '✓ ' + tr.rightAnswer
+        : '✗ ' + tr.notQuite;
+    }
+  });
+  
+  nextBtn.classList.remove('hidden');
+  if (currentQ === quizData.length - 1) nextBtn.textContent = tr.seeResults;
+}
+
+function nextQuestion() {
+  answered = false;
+  currentQ++;
+  if (currentQ >= quizData.length) { showResults(); return; }
+  document.querySelectorAll('.question').forEach((q, i) => q.classList.toggle('active', i === currentQ));
+  updateProgress();
+}
+
+function updateProgress() {
+  document.querySelector('.progress-fill').style.width = (currentQ / quizData.length * 100) + '%';
+}
+
+function showResults() {
+  document.querySelectorAll('.question').forEach(q => q.classList.remove('active'));
+  document.getElementById('results').classList.add('active');
+  const pct = Math.round((correctCount / quizData.length) * 100);
+  document.getElementById('score').textContent = pct + '%';
+  document.getElementById('score-text').textContent = tr.scoreText.replace('{correct}', correctCount).replace('{total}', quizData.length);
+  document.querySelector('.progress-fill').style.width = '100%';
+}
+
+function restart() {
+  currentQ = 0; correctCount = 0; answered = false;
+  document.getElementById('results').classList.remove('active');
+  document.querySelectorAll('.question').forEach((q, i) => {
+    q.classList.toggle('active', i === 0);
+    q.querySelectorAll('.option').forEach(o => o.classList.remove('selected', 'correct', 'incorrect', 'disabled', 'show-correct'));
+    q.querySelectorAll('.option-feedback').forEach(f => {
+      f.classList.add('hidden');
+      f.classList.remove('correct-feedback', 'incorrect-feedback');
+    });
+    const btn = q.querySelector('.next-btn');
+    btn.classList.add('hidden');
+    btn.textContent = tr.next;
+  });
+  updateProgress();
+}
+
+init();
+</script>
+</body>
+</html>
